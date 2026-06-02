@@ -8,5 +8,5 @@ pub enum RepositoryType {
 #[derive(Debug, Clone)]
 pub struct RepositoryInfo {
     pub repo_type: RepositoryType,
-    pub projects: Vec<String>,
+    pub project_paths: Vec<String>,
 }
