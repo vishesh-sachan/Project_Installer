@@ -5,10 +5,8 @@ use crate::models::repository::{RepositoryInfo, RepositoryType};
 
 fn is_project(path: &Path) -> bool {
     path.join("package.json").exists()
-        || path.join("Cargo.toml").exists()
-        || path.join("go.mod").exists()
-        || path.join("requirements.txt").exists()
 }
+// currently only discover project that have pacakge.json
 
 fn is_monorepo(path: &Path) -> bool {
     path.join("pnpm-workspace.yaml").exists()
@@ -22,7 +20,7 @@ fn discover_project_paths(root: &Path) -> Vec<String> {
 
     // root project
     if is_project(root) {
-        project_paths.push(".".to_string());
+        project_paths.push(String::new());
     }
 
     if let Ok(entries) = fs::read_dir(root) {
@@ -44,7 +42,7 @@ fn discover_project_paths(root: &Path) -> Vec<String> {
     project_paths
 }
 
-pub fn repository(path: String) -> Result<RepositoryInfo, String> {
+pub fn repository(path: &Path) -> Result<RepositoryInfo, String> {
     let path = Path::new(&path);
 
     if !path.exists() {
