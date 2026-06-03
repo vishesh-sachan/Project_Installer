@@ -1,4 +1,6 @@
-#[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ScriptType {
     Install,
     Build,
@@ -10,7 +12,7 @@ pub enum ScriptType {
     Custom,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProjectScript {
     pub name: String,
     pub command: String,
