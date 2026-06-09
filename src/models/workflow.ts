@@ -1,10 +1,8 @@
-// src/models/workflow.ts
-
 //
 // FLOW
 //
 
-export type Flow =
+export type FlowType =
   | {
       type: "continue";
     }
@@ -13,13 +11,18 @@ export type Flow =
       targetStepId: string;
     };
 
+export interface FlowStep extends BaseStep {
+  type: "flow";
+
+  flowType: FlowType;
+}
+
 //
 // WORKFLOW
 //
 
 export interface Workflow {
   steps: Step[];
-  flow: Flow;
 }
 
 //
@@ -216,4 +219,5 @@ export type Step =
   | ConditionStep
   | CommandStep
   | ChoiceStep
-  | FileStep;
+  | FileStep
+  | FlowStep;

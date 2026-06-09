@@ -10,16 +10,32 @@ impl WorkflowContext {
     pub fn get(&self, key: &str) -> Option<&String> {
         self.variables.get(key)
     }
-
+    
     pub fn set(&mut self, key: String, value: String) {
         self.variables.insert(key, value);
     }
 }
 
+//
+// Flow
+//
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum FlowType {
+    Continue,
+    Jump {
+        target_step_id: String,
+    },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FlowStep {
+    pub flow_type: FlowType,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Workflow {
     pub steps: Vec<Step>,
-    pub flow: Flow,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -32,6 +48,7 @@ pub enum Step {
     Command(CommandStep),
     Choice(ChoiceStep),
     File(FileStep),
+    Flow(FlowStep)
 }
 
 //
@@ -208,17 +225,5 @@ pub enum FileOperation {
     ReplaceText {
         search: String,
         replace: String,
-    },
-}
-
-//
-// JUMP
-//
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum Flow {
-    Continue,
-    Jump {
-        target_step_id: String,
     },
 }
