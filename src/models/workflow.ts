@@ -1,0 +1,219 @@
+// src/models/workflow.ts
+
+//
+// FLOW
+//
+
+export type Flow =
+  | {
+      type: "continue";
+    }
+  | {
+      type: "jump";
+      targetStepId: string;
+    };
+
+//
+// WORKFLOW
+//
+
+export interface Workflow {
+  steps: Step[];
+  flow: Flow;
+}
+
+//
+// BASE STEP
+//
+
+export interface BaseStep {
+  id: string;
+  name: string;
+}
+
+//
+// INPUT
+//
+
+export interface InputStep extends BaseStep {
+  type: "input";
+
+  variableName: string;
+  prompt: string;
+
+  description?: string;
+  defaultValue?: string;
+  placeholder?: string;
+
+  required: boolean;
+  secret: boolean;
+
+  validationRegex?: string;
+}
+
+//
+// INFORMATION
+//
+
+export interface InformationStep extends BaseStep {
+  type: "information";
+
+  title: string;
+  content: string;
+}
+
+//
+// CHECK
+//
+
+export interface CheckStep extends BaseStep {
+  type: "check";
+
+  checkType: CheckType;
+
+  onSuccess: Workflow;
+  onFailure: Workflow;
+}
+
+export type CheckType =
+  | CommandCheck
+  | FileExistsCheck
+  | DirectoryExistsCheck
+  | EnvironmentVariableCheck;
+
+export interface CommandCheck {
+  type: "command";
+
+  command: string;
+  expectedExitCode: number;
+}
+
+export interface FileExistsCheck {
+  type: "fileExists";
+
+  path: string;
+}
+
+export interface DirectoryExistsCheck {
+  type: "directoryExists";
+
+  path: string;
+}
+
+export interface EnvironmentVariableCheck {
+  type: "environmentVariable";
+
+  variableName: string;
+}
+
+//
+// CONDITION
+//
+
+export interface ConditionStep extends BaseStep {
+  type: "condition";
+
+  left: string;
+  operator: ConditionOperator;
+  right: string;
+
+  onTrue: Workflow;
+  onFalse: Workflow;
+}
+
+export type ConditionOperator =
+  | "equals"
+  | "notEquals"
+  | "greaterThan"
+  | "greaterThanOrEqual"
+  | "lessThan"
+  | "lessThanOrEqual"
+  | "contains";
+
+//
+// COMMAND
+//
+
+export interface CommandStep extends BaseStep {
+  type: "command";
+
+  command: string;
+
+  workingDirectory?: string;
+
+  captureStdoutTo?: string;
+  captureStderrTo?: string;
+  captureExitCodeTo?: string;
+
+  onSuccess: Workflow;
+  onFailure: Workflow;
+}
+
+//
+// CHOICE
+//
+
+export interface ChoiceStep extends BaseStep {
+  type: "choice";
+
+  variableName: string;
+  prompt: string;
+
+  options: string[];
+
+  defaultValue?: string;
+
+  allowCustomValue: boolean;
+}
+
+//
+// FILE
+//
+
+export interface FileStep extends BaseStep {
+  type: "file";
+
+  filePath: string;
+
+  operation: FileOperation;
+
+  onSuccess: Workflow;
+  onFailure: Workflow;
+}
+
+export type FileOperation =
+  | CreateOrOverwriteOperation
+  | AppendOperation
+  | ReplaceTextOperation;
+
+export interface CreateOrOverwriteOperation {
+  type: "createOrOverwrite";
+
+  content: string;
+}
+
+export interface AppendOperation {
+  type: "append";
+
+  content: string;
+}
+
+export interface ReplaceTextOperation {
+  type: "replaceText";
+
+  search: string;
+  replace: string;
+}
+
+//
+// STEP UNION
+//
+
+export type Step =
+  | InputStep
+  | InformationStep
+  | CheckStep
+  | ConditionStep
+  | CommandStep
+  | ChoiceStep
+  | FileStep;
