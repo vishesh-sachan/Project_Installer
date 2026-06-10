@@ -23,7 +23,7 @@ export default function WorkflowBuilder() {
 
             <div className="flex flex-1 overflow-hidden">
                 {variables.length > 0 && (
-                    <aside className="w-72 border-r">
+                    <aside className="w-72">
                         <ContextVariablesPanel
                             variables={variables}
                         />
@@ -43,7 +43,7 @@ export default function WorkflowBuilder() {
                     />
                 </main>
 
-                <aside className="panel w-96 border-l">
+                <aside className="panel w-96">
                     <div className="panel-header">
                         Properties
                     </div>
