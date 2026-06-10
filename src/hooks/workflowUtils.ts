@@ -278,10 +278,35 @@ export function addStepToWorkflow(
   newStep: Step
 ): Workflow {
   // Root workflow
-  if (path.length === 0) {
+  if(path.length === 0) {
+    const flowIndex = workflow.steps.findIndex(
+      (step) => step.type === "flow"
+    );
+
+    if (flowIndex === -1) {
+      return {
+        ...workflow,
+        steps: [
+          ...workflow.steps,
+          newStep,
+        ],
+      };
+    }
+
     return {
       ...workflow,
-      steps: [...workflow.steps, newStep],
+      steps: [
+        ...workflow.steps.slice(
+          0,
+          flowIndex
+        ),
+
+        newStep,
+
+        ...workflow.steps.slice(
+          flowIndex
+        ),
+      ],
     };
   }
 
