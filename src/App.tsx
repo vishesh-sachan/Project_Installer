@@ -5,17 +5,17 @@ import WorkflowBuilder from "./pages/WorkflowBuilder";
 
 type AppState =
   | {
-      page: "projectSelection";
-    }
+    page: "projectSelection";
+  }
   | {
-      page: "projectOverview";
-      projectPath: string;
-    }
+    page: "projectOverview";
+    projectPath: string;
+  }
   | {
-      page: "workflowBuilder";
-      projectPath: string;
-      workflowId: string;
-    };
+    page: "workflowBuilder";
+    projectPath: string;
+    workflowId?: string;
+  };
 
 function App() {
   const [state, setState] =
@@ -60,6 +60,13 @@ function App() {
               projectPath:
                 state.projectPath,
               workflowId,
+            })
+          }
+          onCreateWorkflow={() =>
+            setState({
+              page: "workflowBuilder",
+              projectPath:
+                state.projectPath,
             })
           }
         />

@@ -1,4 +1,8 @@
-export default function TopBar() {
+type Props = {
+    workflowName: string;
+};
+
+export default function TopBar({ workflowName }: Props) {
     return (
         <header className="panel h-14 flex items-center justify-between px-4 border-b">
             <div className="flex items-center gap-4">
@@ -11,7 +15,7 @@ export default function TopBar() {
                 <div className="h-4 w-px bg-[var(--border)]" />
 
                 <span className="text-[var(--muted)] text-sm">
-                    Untitled Workflow
+                    {workflowName}
                 </span>
             </div>
 

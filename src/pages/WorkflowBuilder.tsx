@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import TopBar from "../components/layout/TopBar";
 import WorkflowTree from "../components/workflow/WorkflowTree";
 import PropertiesPanel from "../components/properties/PropertiesPanel";
@@ -5,21 +6,57 @@ import { collectContextVariables } from "../models/contextVariables";
 import { useWorkflow } from "../hooks/useWorkflow";
 import { collectWorkflowSteps } from "../models/workflowUtils";
 import ContextVariablesPanel from "../components/context/ContextVariablesPanel";
+import { loadWorkflow } from "../services/workflowService";
+import { createWorkflow } from "../models/workflowFactory";
 
-export default function WorkflowBuilder() {
+type Props = {
+    projectPath: string;
+    workflowId?: string;
+};
+
+export default function WorkflowBuilder({
+    projectPath,
+    workflowId,
+}: Props) {
     const workflowState = useWorkflow();
-
     const variables = collectContextVariables(
         workflowState.workflow
     );
-
     const stepReferences = collectWorkflowSteps(
         workflowState.workflow
     );
 
+    useEffect(() => {
+        async function load() {
+            if (!workflowId) {
+                workflowState.setWorkflowState(
+                    createWorkflow()
+                );
+
+                return;
+            }
+
+            const workflow =
+                await loadWorkflow(
+                    projectPath,
+                    workflowId
+                );
+
+            workflowState.setWorkflowState(
+                workflow
+            );
+        }
+
+        load();
+    }, [projectPath, workflowId]);
+
     return (
         <div className="h-screen flex flex-col">
-            <TopBar />
+            <TopBar
+                workflowName={
+                    workflowState.workflow.name
+                }
+            />
 
             <div className="flex flex-1 overflow-hidden">
                 {variables.length > 0 && (

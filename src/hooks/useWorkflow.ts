@@ -11,6 +11,16 @@ import {
   addStepToWorkflow
 } from "./workflowUtils"
 
+function touchWorkflow(
+  workflow: Workflow
+): Workflow {
+  return {
+    ...workflow,
+    updatedAt:
+      new Date().toISOString(),
+  };
+}
+
 export function useWorkflow() {
   const [workflow, setWorkflow] = useState<Workflow>({
     id: crypto.randomUUID(),
@@ -45,15 +55,24 @@ export function useWorkflow() {
     setSelectedStepId(stepId);
   }
 
+  function setWorkflowState(
+    workflow: Workflow
+  ) {
+    setWorkflow(workflow);
+    setSelectedStepId(null);
+  }
+
   function addStep(
     path: WorkflowPath,
     step: Step
   ) {
     setWorkflow((currentWorkflow) =>
-      addStepToWorkflow(
-        currentWorkflow,
-        path,
-        step
+      touchWorkflow(
+        addStepToWorkflow(
+          currentWorkflow,
+          path,
+          step
+        )
       )
     );
 
@@ -64,9 +83,11 @@ export function useWorkflow() {
     updatedStep: Step
   ) {
     setWorkflow((currentWorkflow) =>
-      updateStepRecursive(
-        currentWorkflow,
-        updatedStep
+      touchWorkflow(
+        updateStepRecursive(
+          currentWorkflow,
+          updatedStep
+        )
       )
     );
   }
@@ -80,7 +101,11 @@ export function useWorkflow() {
         stepId
       );
 
-    setWorkflow(updatedWorkflow);
+    setWorkflow(
+      touchWorkflow(
+        updatedWorkflow
+      )
+    );
 
     if (
       selectedStepId &&
@@ -95,7 +120,7 @@ export function useWorkflow() {
 
   return {
     workflow,
-
+    setWorkflowState,
     selectedStepId,
     selectedStep,
 

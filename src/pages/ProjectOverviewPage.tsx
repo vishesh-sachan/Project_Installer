@@ -17,6 +17,8 @@ type Props = {
   onOpenEditor: (
     workflowId: string
   ) => void;
+
+  onCreateWorkflow: () => void;
 };
 
 function formatDate(
@@ -31,6 +33,7 @@ export default function ProjectOverviewPage({
   projectPath,
   onBack,
   onOpenEditor,
+  onCreateWorkflow
 }: Props) {
   const [workflows, setWorkflows] = useState<WorkflowSummary[]>([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowSummary | null>(null);
@@ -92,10 +95,17 @@ export default function ProjectOverviewPage({
         <div className="grid grid-cols-[320px_1fr] gap-6 h-full">
           {/* Left */}
           <div className="panel overflow-hidden">
-            <div className="border-b border-[var(--border)] px-4 py-3">
+            <div className="border-b border-[var(--border)] px-4 py-3 flex items-center justify-between">
               <div className="text-sm uppercase tracking-wide text-[var(--muted)]">
                 Workflows
               </div>
+
+              <button
+                className="workflow-button"
+                onClick={onCreateWorkflow}
+              >
+                New
+              </button>
             </div>
 
             <div className="p-3 flex flex-col gap-2">
@@ -172,8 +182,11 @@ export default function ProjectOverviewPage({
                       Project
                     </button>
 
-                    <button className="workflow-button">
-                      Start Blank
+                    <button
+                      className="workflow-button"
+                      onClick={onCreateWorkflow}
+                    >
+                      New Workflow
                     </button>
                   </div>
                 </div>

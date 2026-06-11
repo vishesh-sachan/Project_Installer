@@ -15,7 +15,23 @@ export function createContinueFlowStep(): FlowStep {
     };
 }
 
-function createEmptyWorkflow(): Workflow {
+export function createWorkflow(): Workflow {
+  return {
+    id: crypto.randomUUID(),
+
+    name: "New Workflow",
+
+    createdAt:
+      new Date().toISOString(),
+
+    updatedAt:
+      new Date().toISOString(),
+
+    steps: [],
+  };
+}
+
+function createEmptySubWorkflow(): Workflow {
     return {
         id: crypto.randomUUID(),
         name: "sub-workflow",
@@ -70,8 +86,8 @@ export function createStep(
                     expectedExitCode: 0,
                 },
 
-                onSuccess: createEmptyWorkflow(),
-                onFailure: createEmptyWorkflow(),
+                onSuccess: createEmptySubWorkflow(),
+                onFailure: createEmptySubWorkflow(),
             };
 
         case "condition":
@@ -84,8 +100,8 @@ export function createStep(
                 operator: "equals",
                 value: "",
 
-                onTrue: createEmptyWorkflow(),
-                onFalse: createEmptyWorkflow(),
+                onTrue: createEmptySubWorkflow(),
+                onFalse: createEmptySubWorkflow(),
             };
 
         case "command":
@@ -96,8 +112,8 @@ export function createStep(
 
                 command: "",
 
-                onSuccess: createEmptyWorkflow(),
-                onFailure: createEmptyWorkflow(),
+                onSuccess: createEmptySubWorkflow(),
+                onFailure: createEmptySubWorkflow(),
             };
 
         case "choice":
@@ -127,8 +143,8 @@ export function createStep(
                     content: "",
                 },
 
-                onSuccess: createEmptyWorkflow(),
-                onFailure: createEmptyWorkflow(),
+                onSuccess: createEmptySubWorkflow(),
+                onFailure: createEmptySubWorkflow(),
             };
 
         case "flow":
