@@ -143,6 +143,8 @@ pub fn list_workflows(
                     workflow.created_at,
                 updated_at:
                     workflow.updated_at,
+                decription:
+                    workflow.description
             },
         );
     }
