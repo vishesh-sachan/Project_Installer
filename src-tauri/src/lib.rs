@@ -1,6 +1,5 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 mod models;
-mod analyzers;
 mod services;
 mod commands;
 use tauri_plugin_dialog;
@@ -11,7 +10,6 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
-            commands::analyze::analyze,
             commands::workflow_commands::save_workflow_command,
             commands::workflow_commands::load_workflow_command,
             commands::workflow_commands::workflow_exists_command,
