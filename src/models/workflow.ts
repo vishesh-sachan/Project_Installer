@@ -239,3 +239,11 @@ export type Step =
   | ChoiceStep
   | FileStep
   | FlowStep;
+
+export interface WorkflowSummary {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
