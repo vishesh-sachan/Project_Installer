@@ -1,25 +1,6 @@
 import { useMemo, useState } from "react";
-import {
-  Step,
-  Workflow,
-  WorkflowPath,
-} from "../models/workflow";
-import {
-  findStepRecursive,
-  updateStepRecursive,
-  deleteStepRecursive,
-  addStepToWorkflow
-} from "./workflowUtils"
-
-function touchWorkflow(
-  workflow: Workflow
-): Workflow {
-  return {
-    ...workflow,
-    updatedAt:
-      new Date().toISOString(),
-  };
-}
+import { Step, Workflow, WorkflowPath } from "../models/workflow";
+import { findStepRecursive, updateStepRecursive, deleteStepRecursive, addStepToWorkflow, touchWorkflow } from "./workflowUtils"
 
 export function useWorkflow() {
   const [workflow, setWorkflow] = useState<Workflow>({
@@ -33,10 +14,7 @@ export function useWorkflow() {
     steps: [],
   });
 
-  const [
-    selectedStepId,
-    setSelectedStepId,
-  ] = useState<string | null>(null);
+  const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
 
   const selectedStep = useMemo(
     () =>
@@ -121,9 +99,9 @@ export function useWorkflow() {
   return {
     workflow,
     setWorkflowState,
+
     selectedStepId,
     selectedStep,
-
     selectStep,
 
     addStep,

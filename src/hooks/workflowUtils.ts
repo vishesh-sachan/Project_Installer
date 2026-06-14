@@ -271,7 +271,6 @@ export function deleteStepRecursive(
   };
 }
 
-
 export function addStepToWorkflow(
   workflow: Workflow,
   path: WorkflowPath,
@@ -428,5 +427,15 @@ export function addStepToWorkflow(
           return step;
       }
     }),
+  };
+}
+
+export function touchWorkflow(
+  workflow: Workflow
+): Workflow {
+  return {
+    ...workflow,
+    updatedAt:
+      new Date().toISOString(),
   };
 }
