@@ -6,13 +6,14 @@ import { collectContextVariables } from "../models/contextVariables";
 import { useWorkflow } from "../hooks/useWorkflow";
 import { collectWorkflowSteps } from "../models/workflowUtils";
 import ContextVariablesPanel from "../components/context/ContextVariablesPanel";
-import { loadWorkflow } from "../services/workflowService";
-import { createWorkflow } from "../models/workflowFactory";
+import { loadWorkflow, saveWorkflow } from "../services/workflowService";
+// import { createWorkflow } from "../models/workflowFactory";
 
 type Props = {
     projectPath: string;
     workflowId?: string;
 };
+
 
 export default function WorkflowBuilder({
     projectPath,
@@ -26,13 +27,27 @@ export default function WorkflowBuilder({
         workflowState.workflow
     );
 
+    async function handleSave() {
+        try {
+            await saveWorkflow(
+                projectPath,
+                workflowState.workflow
+            );
+
+            console.log(
+                "Workflow saved"
+            );
+        } catch (error) {
+            console.error(
+                "Failed to save workflow",
+                error
+            );
+        }
+    }
+
     useEffect(() => {
         async function load() {
             if (!workflowId) {
-                workflowState.setWorkflowState(
-                    createWorkflow()
-                );
-
                 return;
             }
 
@@ -56,6 +71,7 @@ export default function WorkflowBuilder({
                 workflowName={
                     workflowState.workflow.name
                 }
+                onSave={handleSave}
             />
 
             <div className="flex-1 p-6 overflow-hidden">
