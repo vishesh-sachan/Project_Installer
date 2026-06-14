@@ -7,7 +7,7 @@ import {
   listWorkflows,
 } from "../services/workflowService";
 
-import { WorkflowSummary } from "../models/workflowSummary";
+import { WorkflowSummary } from "../models/workflow";
 
 type Props = {
   projectPath: string;
@@ -150,7 +150,7 @@ export default function ProjectOverviewPage({
                       Updated{" "}
                       {
                         formatDate(
-                          workflow.updated_at
+                          workflow.updatedAt
                         )
                       }
                     </div>
@@ -239,7 +239,7 @@ export default function ProjectOverviewPage({
                       <div className="mt-2 text-sm">
                         {
                           formatDate(
-                            selectedWorkflow.created_at
+                            selectedWorkflow.createdAt
                           )
                         }
                       </div>
@@ -253,7 +253,7 @@ export default function ProjectOverviewPage({
                       <div className="mt-2 text-sm">
                         {
                           formatDate(
-                            selectedWorkflow.updated_at
+                            selectedWorkflow.updatedAt
                           )
                         }
                       </div>
