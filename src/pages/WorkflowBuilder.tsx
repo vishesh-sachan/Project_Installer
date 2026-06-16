@@ -1,50 +1,51 @@
-import { useEffect } from "react";
-import TopBar from "../components/layout/TopBar";
-import WorkflowTree from "../components/workflow/WorkflowTree";
-import PropertiesPanel from "../components/properties/PropertiesPanel";
-import { collectContextVariables } from "../models/contextVariables";
-import { useWorkflow } from "../hooks/useWorkflow";
-import { collectWorkflowSteps } from "../models/workflowUtils";
-import ContextVariablesPanel from "../components/context/ContextVariablesPanel";
-import { loadWorkflow } from "../services/workflowService";
-import { createWorkflow } from "../models/workflowFactory";
+import { useEffect, useMemo } from "react";
+import TopBar from "../shared/components/TopBar";
+import WorkflowTree from "../features/workflow/components/WorkflowTree";
+import PropertiesPanel from "../features/properties/components/PropertiesPanel";
+import ContextVariablesPanel from "../features/context-variables/components/ContextVariablesPanel";
+import { useWorkflowStore } from "../features/workflow/store/useWorkflowStore";
+import { collectContextVariables } from "../features/context-variables/utils/collectContextVariables";
+import { collectWorkflowSteps } from "../features/workflow-list/utils/collectWorkflowSteps";
+import { loadWorkflow, saveWorkflow } from "../services/workflowService";
 
 type Props = {
     projectPath: string;
     workflowId?: string;
+    onBack: () => void;
 };
 
 export default function WorkflowBuilder({
     projectPath,
     workflowId,
+    onBack,
 }: Props) {
-    const workflowState = useWorkflow();
-    const variables = collectContextVariables(
-        workflowState.workflow
+    const workflow = useWorkflowStore((s) => s.workflow);
+    const setWorkflow = useWorkflowStore((s) => s.setWorkflow);
+
+    const variables = useMemo(
+        () => collectContextVariables(workflow),
+        [workflow]
     );
-    const stepReferences = collectWorkflowSteps(
-        workflowState.workflow
+    const stepReferences = useMemo(
+        () => collectWorkflowSteps(workflow),
+        [workflow]
     );
+
+    async function handleSave() {
+        try {
+            await saveWorkflow(projectPath, workflow);
+            console.log("Workflow saved");
+        } catch (error) {
+            console.error("Failed to save workflow", error);
+        }
+    }
 
     useEffect(() => {
         async function load() {
-            if (!workflowId) {
-                workflowState.setWorkflowState(
-                    createWorkflow()
-                );
+            if (!workflowId) return;
 
-                return;
-            }
-
-            const workflow =
-                await loadWorkflow(
-                    projectPath,
-                    workflowId
-                );
-
-            workflowState.setWorkflowState(
-                workflow
-            );
+            const loaded = await loadWorkflow(projectPath, workflowId);
+            setWorkflow(loaded);
         }
 
         load();
@@ -52,11 +53,7 @@ export default function WorkflowBuilder({
 
     return (
         <div className="h-screen flex flex-col">
-            <TopBar
-                workflowName={
-                    workflowState.workflow.name
-                }
-            />
+            <TopBar onSave={handleSave} onBack={onBack} />
 
             <div className="flex-1 p-6 overflow-hidden">
                 <div className="h-full flex gap-6">
@@ -69,16 +66,7 @@ export default function WorkflowBuilder({
                     )}
 
                     <main className="panel grid-background flex-1 overflow-auto">
-                        <WorkflowTree
-                            workflow={workflowState.workflow}
-                            selectedStepId={
-                                workflowState.selectedStepId
-                            }
-                            selectStep={
-                                workflowState.selectStep
-                            }
-                            addStep={workflowState.addStep}
-                        />
+                        <WorkflowTree />
                     </main>
 
                     <aside className="panel w-96 overflow-auto">
@@ -87,19 +75,8 @@ export default function WorkflowBuilder({
                         </div>
 
                         <PropertiesPanel
-                            selectedStep={
-                                workflowState.selectedStep
-                            }
-                            updateStep={
-                                workflowState.updateStep
-                            }
                             variables={variables}
-                            stepReferences={
-                                stepReferences
-                            }
-                            deleteStep={
-                                workflowState.deleteStep
-                            }
+                            stepReferences={stepReferences}
                         />
                     </aside>
                 </div>
