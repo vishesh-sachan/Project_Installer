@@ -81,6 +81,13 @@ function App() {
           workflowId={
             state.workflowId
           }
+          onBack={() =>
+            setState({
+              page: "projectOverview",
+              projectPath:
+                state.projectPath,
+            })
+          }
         />
       );
   }
