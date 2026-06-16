@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { Workflow, WorkflowSummary } from "../models/workflow";
+import { Workflow, WorkflowSummary } from "../features/workflow/types/workflow";
 
 function projectInstallerPath(
   projectPath: string,
