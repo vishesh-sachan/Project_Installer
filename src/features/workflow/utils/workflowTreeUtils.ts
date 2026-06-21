@@ -51,6 +51,16 @@ export function workflowContainsStep(
           return true;
         }
         break;
+
+      case "osBranch":
+        if (
+          workflowContainsStep(step.macos, stepId) ||
+          workflowContainsStep(step.linux, stepId) ||
+          workflowContainsStep(step.windows, stepId)
+        ) {
+          return true;
+        }
+        break;
     }
   }
 
