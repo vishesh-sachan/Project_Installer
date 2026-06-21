@@ -13,6 +13,7 @@ const STEP_TYPES: Step["type"][] = [
   "choice",
   "file",
   "flow",
+  "osBranch",
 ];
 
 export default function StepPicker({
