@@ -2,7 +2,10 @@ export type WorkflowBranch =
   | "onSuccess"
   | "onFailure"
   | "onTrue"
-  | "onFalse";
+  | "onFalse"
+  | "macos"
+  | "linux"
+  | "windows";
 
 export type WorkflowPath = Array<
   string | WorkflowBranch
@@ -20,6 +23,13 @@ export type FlowType =
 export interface FlowStep extends BaseStep {
   type: "flow";
   flowType: FlowType;
+}
+
+export interface OSBranchStep extends BaseStep {
+  type: "osBranch";
+  macos: Workflow;
+  linux: Workflow;
+  windows: Workflow;
 }
 
 export interface Workflow {
@@ -164,7 +174,8 @@ export type Step =
   | CommandStep
   | ChoiceStep
   | FileStep
-  | FlowStep;
+  | FlowStep
+  | OSBranchStep;
 
 export interface WorkflowSummary {
   id: string;
