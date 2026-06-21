@@ -10,6 +10,8 @@ export default function TopBar({
   onBack,
 }: Props) {
   const workflowName = useWorkflowStore((s) => s.workflow.name);
+  const workflowEnv = useWorkflowStore((s) => s.workflow.environment);
+  const updateWorkflowMeta = useWorkflowStore((s) => s.updateWorkflowMeta);
 
   return (
     <header className="panel h-14 flex items-center justify-between px-4 border-b">
@@ -36,7 +38,25 @@ export default function TopBar({
         </span>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <label className="text-xs uppercase text-[var(--muted)] tracking-wide">
+            Env
+          </label>
+          <select
+            value={workflowEnv ?? ""}
+            onChange={(e) =>
+              updateWorkflowMeta({ environment: e.target.value || undefined })
+            }
+            className="bg-[var(--surface)] border border-[var(--border)] rounded px-2 py-1 text-xs outline-none focus:border-[var(--accent)]"
+          >
+            <option value="">None</option>
+            <option value="dev">dev</option>
+            <option value="staging">staging</option>
+            <option value="prod">prod</option>
+          </select>
+        </div>
+
         <button className="workflow-button">
           Validate
         </button>
