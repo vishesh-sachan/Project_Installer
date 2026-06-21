@@ -126,6 +126,16 @@ export function createStep(type: Step["type"]): Step {
                 flowType: { type: "continue" },
             };
 
+        case "osBranch":
+            return {
+                id,
+                type: "osBranch",
+                name: "OS Branch",
+                macos: createEmptySubWorkflow(),
+                linux: createEmptySubWorkflow(),
+                windows: createEmptySubWorkflow(),
+            };
+
         default:
             throw new Error(`Unsupported step type: ${type}`);
     }
