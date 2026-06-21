@@ -1,3 +1,4 @@
+import { useState } from "react";
 import WorkflowBranch from "./WorkflowBranch";
 import {
   workflowContainsStep,
@@ -17,6 +18,7 @@ export default function WorkflowNode({
   step,
   path,
 }: Props) {
+  const [osTab, setOsTab] = useState<"macos" | "linux" | "windows">("macos");
   const selectedStepId = useWorkflowStore((s) => s.selectedStepId);
   const selectStep = useWorkflowStore((s) => s.selectStep);
 
@@ -72,6 +74,23 @@ export default function WorkflowNode({
       ) ||
       workflowContainsStep(
         step.onFailure,
+        selectedStepId
+      );
+  }
+
+  if (step.type === "osBranch") {
+    isExpanded =
+      isExpanded ||
+      workflowContainsStep(
+        step.macos,
+        selectedStepId
+      ) ||
+      workflowContainsStep(
+        step.linux,
+        selectedStepId
+      ) ||
+      workflowContainsStep(
+        step.windows,
         selectedStepId
       );
   }
@@ -263,6 +282,32 @@ export default function WorkflowNode({
                 ]}
               />
             </div>
+          </div>
+        )}
+
+      {step.type === "osBranch" &&
+        isExpanded && (
+          <div className="ml-6 border-l border-[var(--border)] pl-4 flex flex-col gap-4">
+            <div className="flex gap-1 mb-2">
+              {(["macos", "linux", "windows"] as const).map((os) => (
+                <button
+                  key={os}
+                  onClick={(e) => { e.stopPropagation(); setOsTab(os); }}
+                  className={`px-3 py-1 text-xs uppercase tracking-wide rounded ${
+                    osTab === os
+                      ? "bg-[var(--accent)] text-black font-medium"
+                      : "text-[var(--muted)] hover:text-[var(--foreground)]"
+                  }`}
+                >
+                  {os}
+                </button>
+              ))}
+            </div>
+
+            <WorkflowBranch
+              workflow={step[osTab]}
+              path={[...path, step.id, osTab]}
+            />
           </div>
         )}
     </div>
