@@ -4,6 +4,7 @@ import {
   ConditionStep,
   CommandStep,
   FileStep,
+  OSBranchStep,
   Workflow,
   WorkflowPath,
 } from "../types/workflow";
@@ -12,14 +13,16 @@ type NestedWorkflowStep =
   | CheckStep
   | ConditionStep
   | CommandStep
-  | FileStep;
+  | FileStep
+  | OSBranchStep;
 
 function hasNestedWorkflows(step: Step): step is NestedWorkflowStep {
   return (
     step.type === "check" ||
     step.type === "condition" ||
     step.type === "command" ||
-    step.type === "file"
+    step.type === "file" ||
+    step.type === "osBranch"
   );
 }
 
@@ -59,6 +62,15 @@ export function findStepRecursive(
         if (result) return result;
         const failureResult = findStepRecursive(step.onFailure, stepId);
         if (failureResult) return failureResult;
+        break;
+      }
+      case "osBranch": {
+        let result = findStepRecursive(step.macos, stepId);
+        if (result) return result;
+        result = findStepRecursive(step.linux, stepId);
+        if (result) return result;
+        result = findStepRecursive(step.windows, stepId);
+        if (result) return result;
         break;
       }
     }
@@ -107,6 +119,13 @@ export function updateStepRecursive(
             onSuccess: updateStepRecursive(step.onSuccess, updatedStep),
             onFailure: updateStepRecursive(step.onFailure, updatedStep),
           };
+        case "osBranch":
+          return {
+            ...step,
+            macos: updateStepRecursive(step.macos, updatedStep),
+            linux: updateStepRecursive(step.linux, updatedStep),
+            windows: updateStepRecursive(step.windows, updatedStep),
+          };
       }
     }),
   };
@@ -149,6 +168,13 @@ export function deleteStepRecursive(
               ...step,
               onSuccess: deleteStepRecursive(step.onSuccess, stepId),
               onFailure: deleteStepRecursive(step.onFailure, stepId),
+            };
+          case "osBranch":
+            return {
+              ...step,
+              macos: deleteStepRecursive(step.macos, stepId),
+              linux: deleteStepRecursive(step.linux, stepId),
+              windows: deleteStepRecursive(step.windows, stepId),
             };
         }
       }),
@@ -230,6 +256,18 @@ export function addStepToWorkflow(
           }
           if (branch === "onFailure") {
             return { ...step, onFailure: addStepToWorkflow(step.onFailure, remainingPath, newStep) };
+          }
+          return step;
+
+        case "osBranch":
+          if (branch === "macos") {
+            return { ...step, macos: addStepToWorkflow(step.macos, remainingPath, newStep) };
+          }
+          if (branch === "linux") {
+            return { ...step, linux: addStepToWorkflow(step.linux, remainingPath, newStep) };
+          }
+          if (branch === "windows") {
+            return { ...step, windows: addStepToWorkflow(step.windows, remainingPath, newStep) };
           }
           return step;
       }
