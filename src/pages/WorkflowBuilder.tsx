@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import TopBar from "../shared/components/TopBar";
 import WorkflowTree from "../features/workflow/components/WorkflowTree";
 import PropertiesPanel from "../features/properties/components/PropertiesPanel";
@@ -22,6 +22,8 @@ export default function WorkflowBuilder({
 }: Props) {
     const workflow = useWorkflowStore((s) => s.workflow);
     const setWorkflow = useWorkflowStore((s) => s.setWorkflow);
+    const markClean = useWorkflowStore((s) => s.markClean);
+    const [saving, setSaving] = useState(false);
 
     const variables = useMemo(
         () => collectContextVariables(workflow),
@@ -32,14 +34,15 @@ export default function WorkflowBuilder({
         [workflow]
     );
 
-    const markClean = useWorkflowStore((s) => s.markClean);
-
     async function handleSave() {
+        setSaving(true);
         try {
             await saveWorkflow(projectPath, workflow);
             markClean();
         } catch (error) {
             console.error("Failed to save workflow", error);
+        } finally {
+            setSaving(false);
         }
     }
 
@@ -58,7 +61,7 @@ export default function WorkflowBuilder({
 
     return (
         <div className="h-screen flex flex-col">
-            <TopBar onSave={handleSave} onBack={onBack} />
+            <TopBar onSave={handleSave} onBack={onBack} saving={saving} />
 
             <div className="flex-1 p-6 overflow-hidden">
                 <div className="h-full flex gap-6">

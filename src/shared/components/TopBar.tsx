@@ -3,11 +3,13 @@ import { useWorkflowStore } from "../../features/workflow/store/useWorkflowStore
 type Props = {
   onSave: () => void;
   onBack: () => void;
+  saving?: boolean;
 };
 
 export default function TopBar({
   onSave,
   onBack,
+  saving,
 }: Props) {
   const workflowName = useWorkflowStore((s) => s.workflow.name);
   const workflowEnv = useWorkflowStore((s) => s.workflow.environment);
@@ -63,11 +65,11 @@ export default function TopBar({
         </button>
 
         <button
-          className="workflow-button primary"
+          className={`workflow-button${dirty ? " primary" : ""}`}
           onClick={onSave}
-          disabled={!dirty}
+          disabled={!dirty || saving}
         >
-          Save{dirty ? " *" : ""}
+          {saving ? "Saving..." : "Save"}
         </button>
       </div>
     </header>
