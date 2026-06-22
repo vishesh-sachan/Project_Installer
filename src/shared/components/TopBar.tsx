@@ -31,7 +31,7 @@ export default function TopBar({
         <div className="text-lg sm:text-2xl font-bold uppercase tracking-tight">
           PROJECT
           <span className="text-[#7CFF6B]">_</span>
-          INSTALLER
+          IGNITER
         </div>
 
         <div className="h-4 w-px bg-[var(--border)]" />

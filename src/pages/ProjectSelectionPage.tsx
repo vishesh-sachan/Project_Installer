@@ -32,7 +32,7 @@ export default function ProjectSelectionPage({
           <span className="text-[#7CFF6B]">
             _
           </span>
-          INSTALLER
+          IGNITER
         </div>
 
         <div className="mt-4 text-[var(--muted)] text-align-center">

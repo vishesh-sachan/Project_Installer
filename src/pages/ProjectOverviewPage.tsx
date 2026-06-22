@@ -133,7 +133,7 @@ export default function ProjectOverviewPage({
             <span className="text-[#7CFF6B]">
               _
             </span>
-            INSTALLER
+            IGNITER
           </div>
 
           <div className="h-4 w-px bg-[var(--border)]" />
