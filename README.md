@@ -66,7 +66,7 @@ Every sub-workflow (branch) is initialized with a single `flow` step of type `co
 
 ### Persistence
 
-Workflows are saved as JSON files in `.project-installer/workflows/<id>.json`. A separate index at `.project-installer/workflows.json` tracks all workflows.
+Workflows are saved as JSON files in `.project-igniter/workflows/<id>.json`. A separate index at `.project-igniter/workflows.json` tracks all workflows.
 
 ## Tech Stack
 

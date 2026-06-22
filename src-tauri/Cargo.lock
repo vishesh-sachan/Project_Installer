@@ -2614,7 +2614,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "project-installer"
+name = "project-igniter"
 version = "0.1.0"
 dependencies = [
  "serde",

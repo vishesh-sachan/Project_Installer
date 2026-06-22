@@ -5,16 +5,16 @@ import {
   WorkflowIndex,
 } from "../features/workflow/types/workflow";
 
-function projectInstallerPath(projectPath: string): string {
-  return `${projectPath}/.project-installer`;
+function projectIgniterPath(projectPath: string): string {
+  return `${projectPath}/.project-igniter`;
 }
 
 function workflowsIndexPath(projectPath: string): string {
-  return `${projectInstallerPath(projectPath)}/workflows.json`;
+  return `${projectIgniterPath(projectPath)}/workflows.json`;
 }
 
 function workflowPath(projectPath: string, workflowId: string): string {
-  return `${projectInstallerPath(projectPath)}/workflows/${workflowId}.json`;
+  return `${projectIgniterPath(projectPath)}/workflows/${workflowId}.json`;
 }
 
 function createDefaultIndex(): WorkflowIndex {

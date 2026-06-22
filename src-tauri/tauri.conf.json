@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "project-installer",
+  "productName": "project-igniter",
   "version": "0.1.0",
-  "identifier": "com.vishesh.project-installer",
+  "identifier": "com.vishesh.project-igniter",
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "project-installer",
+        "title": "project-igniter",
         "width": 800,
         "height": 600
       }

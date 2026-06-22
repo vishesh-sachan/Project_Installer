@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    project_installer_lib::run()
+    project_igniter_lib::run()
 }
