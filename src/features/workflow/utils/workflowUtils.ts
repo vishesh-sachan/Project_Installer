@@ -275,6 +275,81 @@ export function addStepToWorkflow(
   };
 }
 
+export function moveStepInWorkflow(
+  workflow: Workflow,
+  path: WorkflowPath,
+  fromIndex: number,
+  toIndex: number
+): Workflow {
+  if (path.length === 0) {
+    const steps = [...workflow.steps];
+    const [moved] = steps.splice(fromIndex, 1);
+    steps.splice(toIndex, 0, moved);
+    return { ...workflow, steps };
+  }
+
+  return {
+    ...workflow,
+    steps: workflow.steps.map((step) => {
+      if (step.id !== path[0]) return step;
+      if (!hasNestedWorkflows(step)) return step;
+
+      const branch = path[1];
+      const remainingPath = path.slice(2);
+
+      switch (step.type) {
+        case "check":
+          if (branch === "onSuccess") {
+            return { ...step, onSuccess: moveStepInWorkflow(step.onSuccess, remainingPath, fromIndex, toIndex) };
+          }
+          if (branch === "onFailure") {
+            return { ...step, onFailure: moveStepInWorkflow(step.onFailure, remainingPath, fromIndex, toIndex) };
+          }
+          return step;
+
+        case "condition":
+          if (branch === "onTrue") {
+            return { ...step, onTrue: moveStepInWorkflow(step.onTrue, remainingPath, fromIndex, toIndex) };
+          }
+          if (branch === "onFalse") {
+            return { ...step, onFalse: moveStepInWorkflow(step.onFalse, remainingPath, fromIndex, toIndex) };
+          }
+          return step;
+
+        case "command":
+          if (branch === "onSuccess") {
+            return { ...step, onSuccess: moveStepInWorkflow(step.onSuccess, remainingPath, fromIndex, toIndex) };
+          }
+          if (branch === "onFailure") {
+            return { ...step, onFailure: moveStepInWorkflow(step.onFailure, remainingPath, fromIndex, toIndex) };
+          }
+          return step;
+
+        case "file":
+          if (branch === "onSuccess") {
+            return { ...step, onSuccess: moveStepInWorkflow(step.onSuccess, remainingPath, fromIndex, toIndex) };
+          }
+          if (branch === "onFailure") {
+            return { ...step, onFailure: moveStepInWorkflow(step.onFailure, remainingPath, fromIndex, toIndex) };
+          }
+          return step;
+
+        case "osBranch":
+          if (branch === "macos") {
+            return { ...step, macos: moveStepInWorkflow(step.macos, remainingPath, fromIndex, toIndex) };
+          }
+          if (branch === "linux") {
+            return { ...step, linux: moveStepInWorkflow(step.linux, remainingPath, fromIndex, toIndex) };
+          }
+          if (branch === "windows") {
+            return { ...step, windows: moveStepInWorkflow(step.windows, remainingPath, fromIndex, toIndex) };
+          }
+          return step;
+      }
+    }),
+  };
+}
+
 export function touchWorkflow(workflow: Workflow): Workflow {
   return {
     ...workflow,

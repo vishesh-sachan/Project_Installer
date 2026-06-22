@@ -12,11 +12,15 @@ import { useWorkflowStore } from "../store/useWorkflowStore";
 type Props = {
   step: Step;
   path: WorkflowPath;
+  dragHandleProps?: Record<string, unknown>;
+  isDragging?: boolean;
 };
 
 export default function WorkflowNode({
   step,
   path,
+  dragHandleProps,
+  isDragging,
 }: Props) {
   const [osTab, setOsTab] = useState<"macos" | "linux" | "windows">("macos");
   const selectedStepId = useWorkflowStore((s) => s.selectedStepId);
@@ -96,7 +100,7 @@ export default function WorkflowNode({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className={`flex flex-col gap-4 ${isDragging ? "opacity-50" : ""}`}>
       <div
         onClick={() =>
           selectStep(step.id)
@@ -104,8 +108,27 @@ export default function WorkflowNode({
         className={`workflow-node cursor-pointer ${selected ? "selected" : ""
           }`}
       >
-        <div className="font-medium">
-          {step.name}
+        <div className="flex items-center gap-2">
+          {dragHandleProps && (
+            <button
+              {...dragHandleProps}
+              className="cursor-grab active:cursor-grabbing touch-none px-1 text-[var(--muted)] hover:text-[var(--foreground)] shrink-0"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <circle cx="5" cy="4" r="1.5" />
+                <circle cx="11" cy="4" r="1.5" />
+                <circle cx="5" cy="8" r="1.5" />
+                <circle cx="11" cy="8" r="1.5" />
+                <circle cx="5" cy="12" r="1.5" />
+                <circle cx="11" cy="12" r="1.5" />
+              </svg>
+            </button>
+          )}
+
+          <div className="font-medium">
+            {step.name}
+          </div>
         </div>
 
         <div className="text-xs text-[var(--muted)]">
