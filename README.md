@@ -1,63 +1,93 @@
-# Project Installer
+# Project Igniter
 
-Project Installer is a tool that converts project setup processes into installers.
-
-Many open-source projects require contributors to follow lengthy setup documentation, install dependencies, configure databases, create environment files, run migrations, and troubleshoot issues before they can begin contributing.
-
-Project Installer captures those setup steps and turns them into installers that help contributors get a project running quickly and consistently.
-
-## Vision
-
-Instead of this:
-
-1. Clone repository
-2. Read README
-3. Install dependencies
-4. Create `.env`
-5. Configure services
-6. Run migrations
-7. Fix setup issues
-
-Contributors can:
-
-1. Run an installer
-2. Complete the setup process
-3. Start working on the project
+Project Igniter captures project setup processes and turns them into interactive installers, so contributors can get a project running with a single command instead of wading through lengthy documentation.
 
 ## How It Works
 
-Project Installer analyzes a project and allows maintainers to define its setup workflow.
+Project Igniter is a desktop application that lets maintainers model their project's setup as a **visual workflow** composed of steps. Each step represents an action the user performs during setup — prompting for input, running commands, checking conditions, branching based on variables, etc.
 
-The workflow can include:
+The workflow is persisted as JSON and can be executed by the runtime installer.
 
-* Dependency installation
-* Environment variable configuration
-* Database setup
-* Migration execution
-* Validation checks
-* Project-specific setup steps
+## Workflow Architecture
 
-Project Installer then generates an installer based on that workflow.
+### Data Model
 
-## Why
+A workflow is a **recursive tree** of steps. The top level contains an ordered list of steps, and certain step types contain nested sub-workflows for different execution branches.
 
-Project setup is one of the biggest barriers to contributing to open source.
+```
+Workflow {
+  steps: Step[]          // ordered; array index determines execution order
+}
+```
 
-Maintainers repeatedly answer setup questions, while contributors spend time debugging configuration issues instead of building features.
+Each step has a unique `id` (UUID), a `name`, and a `type` that determines its behavior and available properties.
 
-Project Installer standardizes the setup process and makes project installation easier, faster, and more reliable.
+### Step Types
+
+| Type | Branches | Purpose |
+|---|---|---|
+| `input` | — | Prompt user for text input, store in a variable |
+| `information` | — | Display informational message |
+| `choice` | — | Multiple choice prompt |
+| `flow` | — | Control flow marker (`continue` acts as terminator in sub-workflows) |
+| `check` | `onSuccess`, `onFailure` | Validate a condition (command exit code, file existence, env var presence) |
+| `condition` | `onTrue`, `onFalse` | Branch based on a variable comparison |
+| `command` | `onSuccess`, `onFailure` | Execute a shell command |
+| `file` | `onSuccess`, `onFailure` | Create, append, or replace text in a file |
+| `osBranch` | `macos`, `linux`, `windows` | Branch based on the user's operating system |
+
+### Branching & Recursive Nesting
+
+Steps with branches (`check`, `condition`, `command`, `file`, `osBranch`) each contain nested `Workflow` objects. When a branch executes, its sub-workflow runs as a self-contained sequence of steps. This creates a tree structure:
+
+```
+Root Workflow
+├── Input: "Project name"
+├── Command: "npm install"
+│   ├── onSuccess
+│   │   ├── Information: "Installed successfully"
+│   │   └── Flow: continue
+│   └── onFailure
+│       └── Check: "Is Node installed?"
+│           ├── onSuccess → Command: "Install Node"
+│           └── onFailure → ...
+└── Flow: continue (only in sub-workflows)
+```
+
+#### Flow Step as Sentinel
+
+Every sub-workflow (branch) is initialized with a single `flow` step of type `continue` as the last item. This step acts as a **sentinel** — new steps added to the branch are inserted before it, and it cannot be reordered or deleted. The flow step ensures the sub-workflow returns control to the parent after execution.
+
+### Ordering
+
+- Steps within a workflow are **ordered by array index**.
+- The workflow editor supports **drag-to-reorder** within a branch via a grip handle (≡). Dragging is scoped to a single branch — you cannot drag steps across branches.
+- The `flow` step is always anchored at the bottom and excluded from reordering.
+
+### Persistence
+
+Workflows are saved as JSON files in `.project-installer/workflows/<id>.json`. A separate index at `.project-installer/workflows.json` tracks all workflows.
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Desktop Framework | Tauri v2 |
+| Frontend | React 19, TypeScript |
+| State Management | Zustand 5 |
+| Build Tool | Vite 7 |
+| Styling | Tailwind CSS 4 |
+| Drag & Drop | @dnd-kit/sortable |
+| Backend | Rust (Tauri commands) |
+
+## Editor UI
+
+The workflow editor is a 3-panel layout:
+
+- **Left**: Context variables panel — lists all variables referenced across steps
+- **Center**: Workflow tree — visual tree editor with drag-to-reorder, expand/collapse for branches, and an "Add Step" button
+- **Right**: Properties panel — form editor for the selected step's properties
 
 ## Current Status
 
-Early development phase.
-
-Current focus:
-
-* Project analysis
-* Technology detection
-* Workflow modeling
-* Installer generation architecture
-
-## Long-Term Goal
-
-Make local setup for open-source projects as easy as running an installer.
+Early development. Focus is on workflow modeling and the visual editor.
