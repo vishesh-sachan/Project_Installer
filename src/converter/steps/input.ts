@@ -1,9 +1,9 @@
 import { InputStep } from "../../features/workflow/types/workflow";
-import { sanitizeVarName, escapeBashValue, escapePwshSingleQuoted } from "../utils";
+import { sanitizeVarName, interpolateVars, interpolateVarsPwsh, escapeBashDoubleQuoted, escapePwshSingleQuoted } from "../utils";
 
 export function toBash(step: InputStep): string {
   const varName = sanitizeVarName(step.variableName);
-  const prompt = escapeBashValue(step.prompt || `Enter ${step.variableName}`);
+  const promptVal = escapeBashDoubleQuoted(interpolateVars(step.prompt || `Enter ${step.variableName}`));
   const lines: string[] = [];
 
   lines.push(`load_state "${varName}"`);
@@ -15,15 +15,15 @@ export function toBash(step: InputStep): string {
     lines.push("  while true; do");
 
     if (step.secret) {
-      lines.push(`    read -s -p "${prompt}: " ${varName}`);
+      lines.push(`    read -s -p "${promptVal}: " ${varName}`);
       lines.push('    echo ""');
     } else {
-      const defaultHint = step.defaultValue ? ` [${escapeBashValue(step.defaultValue)}]` : "";
-      lines.push(`    read -p "${prompt}${defaultHint}: " ${varName}`);
+      const defaultHint = step.defaultValue ? ` [${escapeBashDoubleQuoted(interpolateVars(step.defaultValue))}]` : "";
+      lines.push(`    read -p "${promptVal}${defaultHint}: " ${varName}`);
     }
 
     if (step.defaultValue) {
-      lines.push(`    ${varName}="\${${varName}:-${escapeBashValue(step.defaultValue)}}"`);
+      lines.push(`    ${varName}="\${${varName}:-${escapeBashDoubleQuoted(interpolateVars(step.defaultValue))}}"`);
     }
 
     if (step.required) {
@@ -44,14 +44,14 @@ export function toBash(step: InputStep): string {
     lines.push("  done");
   } else {
     if (step.secret) {
-      lines.push(`  read -s -p "${prompt}: " ${varName}`);
+      lines.push(`  read -s -p "${promptVal}: " ${varName}`);
       lines.push('  echo ""');
     } else {
-      const defaultHint = step.defaultValue ? ` [${escapeBashValue(step.defaultValue)}]` : "";
-      lines.push(`  read -p "${prompt}${defaultHint}: " ${varName}`);
+      const defaultHint = step.defaultValue ? ` [${escapeBashDoubleQuoted(interpolateVars(step.defaultValue))}]` : "";
+      lines.push(`  read -p "${promptVal}${defaultHint}: " ${varName}`);
     }
     if (step.defaultValue) {
-      lines.push(`  ${varName}="\${${varName}:-${escapeBashValue(step.defaultValue)}}"`);
+      lines.push(`  ${varName}="\${${varName}:-${escapeBashDoubleQuoted(interpolateVars(step.defaultValue))}}"`);
     }
   }
 
@@ -63,7 +63,7 @@ export function toBash(step: InputStep): string {
 
 export function toPowerShell(step: InputStep): string {
   const varName = sanitizeVarName(step.variableName);
-  const prompt = escapePwshSingleQuoted(step.prompt || `Enter ${step.variableName}`);
+  const promptVal = interpolateVarsPwsh(step.prompt || `Enter ${step.variableName}`);
   const lines: string[] = [];
 
   lines.push(`Load-State "${varName}"`);
@@ -74,12 +74,11 @@ export function toPowerShell(step: InputStep): string {
   if (hasValidation) {
     lines.push("  while ($true) {");
 
-    const defaultHint = step.defaultValue ? ` [${escapePwshSingleQuoted(step.defaultValue)}]` : "";
-    lines.push(`    ${varName} = Read-Host "${prompt}${defaultHint}"`);
+    const defaultHint = step.defaultValue ? ` [${interpolateVarsPwsh(step.defaultValue)}]` : "";
+    lines.push(`    ${varName} = Read-Host "${promptVal}${defaultHint}"`);
 
     if (step.defaultValue) {
-      const escapedDefault = escapePwshSingleQuoted(step.defaultValue);
-      lines.push(`    if ([string]::IsNullOrEmpty(${varName})) { ${varName} = '${escapedDefault}' }`);
+      lines.push(`    if ([string]::IsNullOrEmpty(${varName})) { ${varName} = '${escapePwshSingleQuoted(interpolateVarsPwsh(step.defaultValue))}' }`);
     }
 
     if (step.required) {
@@ -99,11 +98,10 @@ export function toPowerShell(step: InputStep): string {
     lines.push("    break");
     lines.push("  }");
   } else {
-    const defaultHint = step.defaultValue ? ` [${escapePwshSingleQuoted(step.defaultValue)}]` : "";
-    lines.push(`  ${varName} = Read-Host "${prompt}${defaultHint}"`);
+    const defaultHint = step.defaultValue ? ` [${interpolateVarsPwsh(step.defaultValue)}]` : "";
+    lines.push(`  ${varName} = Read-Host "${promptVal}${defaultHint}"`);
     if (step.defaultValue) {
-      const escapedDefault = escapePwshSingleQuoted(step.defaultValue);
-      lines.push(`  if ([string]::IsNullOrEmpty(${varName})) { ${varName} = '${escapedDefault}' }`);
+      lines.push(`  if ([string]::IsNullOrEmpty(${varName})) { ${varName} = '${escapePwshSingleQuoted(interpolateVarsPwsh(step.defaultValue))}' }`);
     }
   }
 

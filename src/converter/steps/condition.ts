@@ -1,5 +1,5 @@
 import { ConditionStep } from "../../features/workflow/types/workflow";
-import { sanitizeVarName, escapeBashValue, escapePwshSingleQuoted } from "../utils";
+import { sanitizeVarName, interpolateVars, interpolateVarsPwsh, escapeBashDoubleQuoted, escapePwshSingleQuoted } from "../utils";
 
 function bashOp(operator: string): string {
   switch (operator) {
@@ -28,7 +28,7 @@ function pwshOp(operator: string): string {
 
 export function toBash(step: ConditionStep): string {
   const varName = sanitizeVarName(step.variableName);
-  const escapedValue = escapeBashValue(step.value);
+  const escapedValue = escapeBashDoubleQuoted(interpolateVars(step.value));
 
   if (step.operator === "contains") {
     return `case "\$${varName}" in *"${escapedValue}"*) ;; *) false ;; esac`;
@@ -39,6 +39,6 @@ export function toBash(step: ConditionStep): string {
 
 export function toPowerShell(step: ConditionStep): string {
   const varName = sanitizeVarName(step.variableName);
-  const escapedValue = escapePwshSingleQuoted(step.value);
+  const escapedValue = escapePwshSingleQuoted(interpolateVarsPwsh(step.value));
   return `$${varName} ${pwshOp(step.operator)} '${escapedValue}'`;
 }

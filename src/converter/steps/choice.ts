@@ -1,5 +1,5 @@
 import { ChoiceStep } from "../../features/workflow/types/workflow";
-import { sanitizeVarName, escapeBashValue, escapePwshSingleQuoted } from "../utils";
+import { sanitizeVarName, interpolateVars, interpolateVarsPwsh, escapeBashDoubleQuoted, escapePwshSingleQuoted } from "../utils";
 
 export function toBash(step: ChoiceStep): string {
   const varName = sanitizeVarName(step.variableName);
@@ -10,9 +10,9 @@ export function toBash(step: ChoiceStep): string {
   lines.push(`if [ -z "\$${varName}" ]; then`);
 
   if (step.allowCustomValue) {
-    lines.push(`  echo "${escapeBashValue(step.prompt)} (or type a custom value)"`);
+    lines.push(`  echo "${escapeBashDoubleQuoted(interpolateVars(step.prompt))} (or type a custom value)"`);
   } else {
-    lines.push(`  echo "${escapeBashValue(step.prompt)}"`);
+    lines.push(`  echo "${escapeBashDoubleQuoted(interpolateVars(step.prompt))}"`);
   }
 
   lines.push(`  select ${varName} in "${step.options.join('" "')}"; do`);
@@ -31,7 +31,7 @@ export function toBash(step: ChoiceStep): string {
   lines.push("  done");
 
   if (step.defaultValue && !step.options.includes(step.defaultValue) && step.allowCustomValue) {
-    lines.push(`  ${varName}="\${${varName}:-${escapeBashValue(step.defaultValue)}}"`);
+    lines.push(`  ${varName}="\${${varName}:-${escapeBashDoubleQuoted(interpolateVars(step.defaultValue))}}"`);
   }
 
   lines.push(`  save_state "${varName}" "\$${varName}"`);
@@ -48,15 +48,15 @@ export function toPowerShell(step: ChoiceStep): string {
 
   lines.push(`if ([string]::IsNullOrEmpty(${varName})) {`);
 
-  const escapedOptions = step.options.map((o) => `'${escapePwshSingleQuoted(o)}'`);
+  const escapedOptions = step.options.map((o) => `'${escapePwshSingleQuoted(interpolateVarsPwsh(o))}'`);
   lines.push(`  $options = @(${escapedOptions.join(", ")})`);
 
   step.options.forEach((opt, i) => {
-    const escapedOpt = escapePwshSingleQuoted(opt);
+    const escapedOpt = escapePwshSingleQuoted(interpolateVarsPwsh(opt));
     lines.push(`  Write-Host "${i + 1}. ${escapedOpt}"`);
   });
 
-  lines.push(`  Write-Host "${escapePwshSingleQuoted(step.prompt)}"`);
+  lines.push(`  Write-Host "${interpolateVarsPwsh(step.prompt)}"`);
 
   if (step.allowCustomValue) {
     lines.push('  $selection = Read-Host "Enter number or custom value"');
@@ -75,7 +75,7 @@ export function toPowerShell(step: ChoiceStep): string {
   }
 
   if (step.defaultValue) {
-    const escapedDefault = escapePwshSingleQuoted(step.defaultValue);
+    const escapedDefault = escapePwshSingleQuoted(interpolateVarsPwsh(step.defaultValue));
     lines.push(`  if ([string]::IsNullOrEmpty(${varName})) { ${varName} = '${escapedDefault}' }`);
   }
 

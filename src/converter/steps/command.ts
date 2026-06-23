@@ -10,7 +10,7 @@ export function toBash(step: CommandStep): string {
   }
 
   if (step.workingDirectory) {
-    execLine = `(cd "${step.workingDirectory}" && ${execLine})`;
+    execLine = `(cd "${interpolateVars(step.workingDirectory)}" && ${execLine})`;
   }
 
   const captures: string[] = [];
@@ -36,7 +36,7 @@ export function toPowerShell(step: CommandStep): string {
   }
 
   if (step.workingDirectory) {
-    execLine = `Push-Location "${step.workingDirectory}"\n${execLine}\nPop-Location`;
+    execLine = `Push-Location "${interpolateVarsPwsh(step.workingDirectory)}"\n${execLine}\nPop-Location`;
   }
 
   const captures: string[] = [];

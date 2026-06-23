@@ -1,19 +1,21 @@
 import { InformationStep } from "../../features/workflow/types/workflow";
-import { escapeBashValue, escapePwshSingleQuoted } from "../utils";
+import { interpolateVars, interpolateVarsPwsh, escapeBashDoubleQuoted } from "../utils";
 
 export function toBash(step: InformationStep): string {
   const lines: string[] = [];
+  const title = interpolateVars(step.title || "");
+  const content = interpolateVars(step.content || "");
 
-  if (step.title) {
+  if (title) {
     lines.push(`echo ""`);
     lines.push(`echo "========================================"`);
-    lines.push(`echo "  ${escapeBashValue(step.title)}"`);
+    lines.push(`echo "  ${escapeBashDoubleQuoted(title)}"`);
     lines.push(`echo "========================================"`);
     lines.push(`echo ""`);
   }
 
-  if (step.content) {
-    lines.push(`echo "${escapeBashValue(step.content)}"`);
+  if (content) {
+    lines.push(`echo "${escapeBashDoubleQuoted(content)}"`);
   }
 
   return lines.join("\n");
@@ -21,17 +23,19 @@ export function toBash(step: InformationStep): string {
 
 export function toPowerShell(step: InformationStep): string {
   const lines: string[] = [];
+  const title = interpolateVarsPwsh(step.title || "");
+  const content = interpolateVarsPwsh(step.content || "");
 
-  if (step.title) {
+  if (title) {
     lines.push('Write-Host ""');
     lines.push('Write-Host ("=" * 40)');
-    lines.push(`Write-Host "  ${escapePwshSingleQuoted(step.title)}"`);
+    lines.push(`Write-Host "  ${title}"`);
     lines.push('Write-Host ("=" * 40)');
     lines.push('Write-Host ""');
   }
 
-  if (step.content) {
-    lines.push(`Write-Host "${escapePwshSingleQuoted(step.content)}"`);
+  if (content) {
+    lines.push(`Write-Host "${content}"`);
   }
 
   return lines.join("\n");
