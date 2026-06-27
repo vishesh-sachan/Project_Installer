@@ -63,13 +63,11 @@ export async function generateScripts(projectPath: string): Promise<number> {
     }
   }
 
-  if (index.schema <= 1) {
-    index.schema = 2;
-    await invoke("write_file", {
-      path: wfPath,
-      contents: JSON.stringify(index, null, 2),
-    });
-  }
+  index.schema += 1;
+  await invoke("write_file", {
+    path: wfPath,
+    contents: JSON.stringify(index, null, 2),
+  });
 
   return files.length;
 }
