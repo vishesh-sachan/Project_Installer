@@ -70,6 +70,10 @@ The function returns only the **body** of the step — what command(s) to execut
 3. Create `steps/<name>.ts` with `toBash()` and `toPowerShell()`
 4. Add a case in `bash.ts` and `powershell.ts` `generateStep()` or `generateBranchingStep()`
 
+### Schema Versioning
+
+Each `workflows.json` carries a `schema` field. The schema is **auto-incremented every time** the user clicks "Generate Scripts" in the UI (`generateScriptsService.ts`). This makes the generated scripts unconditionally "newer" than any previously stored user state.
+
 ### Orchestrator
 
 `orchestrator.ts` generates the root `setup.sh`/`setup.ps1` that:
@@ -78,7 +82,7 @@ The function returns only the **body** of the step — what command(s) to execut
 2. Maps `cwd` to a project key (via `case` on relative path)
 3. Parses `--env`, `--sync`, `--reset`, `--status`, `--help`
 4. Manages `~/.local/share/project-igniter/<hash>/meta` (SCHEMA, LAST_RUN)
-5. Drift detection: compares SCHEMA from state vs `workflows.json`
+5. Drift detection: compares SCHEMA from state vs `workflows.json` — if they differ, warns and requires `--sync`
 6. Routes to `.project-igniter/scripts/<project>/<env>/setup.sh`
 
 ### State Persistence

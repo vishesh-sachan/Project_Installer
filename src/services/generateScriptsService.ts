@@ -63,6 +63,9 @@ export async function generateScripts(projectPath: string): Promise<number> {
     }
   }
 
+  // Bump schema on every generation so the orchestrator's drift detection
+  // (compares SCHEMA in state vs workflows.json) catches stale runs after
+  // any regeneration, regardless of which env was last run.
   index.schema += 1;
   await invoke("write_file", {
     path: wfPath,
