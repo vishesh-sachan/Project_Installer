@@ -10,6 +10,8 @@ import {
   updateWorkflowMetadata,
 } from "../services/workflowService";
 
+import { generateScripts } from "../services/generateScriptsService";
+
 import { WorkflowSummary } from "../features/workflow/types/workflow";
 import { createWorkflow } from "../features/workflow/factory/workflowFactory";
 
@@ -46,6 +48,8 @@ export default function ProjectOverviewPage({
   const [createName, setCreateName] = useState("");
   const [createDescription, setCreateDescription] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -136,6 +140,19 @@ export default function ProjectOverviewPage({
     setSelectedWorkflow(updated.length > 0 ? updated[0] : null);
   }
 
+  async function handleGenerate() {
+    setGenerating(true);
+    try {
+      const count = await generateScripts(projectPath);
+      setToast(`Generated ${count} script files`);
+    } catch (e) {
+      setToast(`Failed: ${e}`);
+    } finally {
+      setGenerating(false);
+      setTimeout(() => setToast(null), 4000);
+    }
+  }
+
   return (
     <div className="h-screen flex flex-col">
       <header className="panel h-14 flex items-center justify-between px-4 border-b">
@@ -155,12 +172,22 @@ export default function ProjectOverviewPage({
           </span>
         </div>
 
-        <button
-          className="workflow-button"
-          onClick={onBack}
-        >
-          Change Project
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            className="workflow-button"
+            onClick={handleGenerate}
+            disabled={generating}
+          >
+            {generating ? "Generating..." : "Generate Scripts"}
+          </button>
+
+          <button
+            className="workflow-button"
+            onClick={onBack}
+          >
+            Change Project
+          </button>
+        </div>
       </header>
 
       <div className="flex-1 p-6">
@@ -426,6 +453,12 @@ export default function ProjectOverviewPage({
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white text-black text-sm px-4 py-2 rounded shadow-lg">
+          {toast}
         </div>
       )}
 
